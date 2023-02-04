@@ -1,0 +1,76 @@
+---
+- name: Set SSH algorythms (Ciphers,MACs,Kex) using ansible
+  hosts: rh8
+  gather_facts: yes
+  tasks:
+#  - name: Distribution
+#    debug: msg="{{ ansible_distribution }}"
+#  - name: Distribution version
+#    debug: msg="{{ ansible_distribution_version }}"
+#  - name: Distribiution major version
+#    debug: msg="{{ ansible_distribution_major_version }}"
+#  - name: OS family
+#    debug: msg="{{ ansible_os_family }}"
+
+### FIRST APPROACH - ISSUE RELATED TO VARIBLE FROM TEXT - IDN HOW TO CHECK
+  - name: Check if Cipher line is present v1
+    become: yes
+    lineinfile:
+      path: /etc/ssh/sshd_config
+      line: "Ciphers aes256-gcm@openssh.com,chacha20-poly1305@openssh.com,aes256-ctr,aes128-gcm@openssh.com,aes128-ctr"
+      state: present
+    check_mode: yes
+    register: cipher_line
+  - debug:
+      var: cipher_line
+
+# SECOND APPROACH
+  - name: Check if Cipher line is present v2
+    become: yes
+    command: cat /etc/ssh/sshd_config | grep "Ciphers aes256-gcm@openssh.com,chacha20-poly1305@openssh.com,aes256-ctr,aes128-gcm@openssh.com,aes128-ctr"
+    register: cipher_line2
+    check_mode: no
+    ignore_errors: yes
+    changed_when: no
+  - debug:
+      var: cipher_line2
+
+
+  - name: Greet the world if /etc/ssh/sshd_config contains proper Ciphers"
+    debug: msg="All ok World!"
+    when: cipher_line2.rc == 0
+
+### REPlACE PHASE
+#TO DO
+
+
+
+### ADDING PHASE
+# FIRST APPROACH
+#  - name: Adding Ciphers to config file v1
+#    become: yes
+#    lineinfile:
+#      path: /etc/ssh/sshd_config
+#      line: "Ciphers aes256-gcm@openssh.com,chacha20-poly1305@openssh.com,aes256-ctr,aes128-gcm@openssh.com,aes128-ctr"
+#      state: present
+#      insertafter: "# Ciphers and keying"
+#      backup: yes
+#    when: "{{ cipher_line }}"
+
+# SECOND APPROACH
+  - name: Adding Ciphers to config file v2
+    become: yes
+    lineinfile:
+      path: /etc/ssh/sshd_config
+      line: "Ciphers aes256-gcm@openssh.com,chacha20-poly1305@openssh.com,aes256-ctr,aes128-gcm@openssh.com,aes128-ctr"
+      state: present
+      insertafter: "# Ciphers and keying"
+      backup: yes
+    when: cipher_line2.rc == 1
+
+#  - name: Configure ssh to use safe algorythms
+#    when: ansible_facts['os_family'] == "RedHat" and ansible_facts['lsb']['major_release'] | int >= 6 <= 9
+
+#Ciphers aes256-gcm@openssh.com,chacha20-poly1305@openssh.com,aes256-ctr,aes128-gcm@openssh.com,aes128-ctr
+#MACs hmac-sha2-256-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-512-etm@openssh.com,hmac-sha2-256,umac-128@openssh.com,hmac-sha2-512
+#KexAlgorithms curve25519-sha256,curve25519-sha256@libssh.org,ecdh-sha2-nistp256,ecdh-sha2-nistp384,ecdh-sha2-nistp521,diffie-hellman-group-exchange-sha256,diffie-hellman-group14-sha256,diffie-hellman-group16-sha512,diffie-hellman-group18-sha512
