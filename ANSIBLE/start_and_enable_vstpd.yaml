@@ -1,0 +1,20 @@
+---
+- name: install, start and run vsftpd service
+  gather_facts: no
+  hosts: rh9
+  tasks:
+  - name: install service
+    package:
+      name: vsftpd
+      state: latest
+  - name: run the service    
+    service:
+      name: vsftpd
+      state: started
+      enabled: yes
+  - name: opening firewall
+    firewalld:
+      service: ftp
+      permanent: yes
+      state: enabled
+      immediate: yes 
