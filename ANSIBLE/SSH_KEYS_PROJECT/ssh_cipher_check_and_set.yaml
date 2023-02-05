@@ -19,7 +19,7 @@
       path: /etc/ssh/sshd_config
       line: "Ciphers aes256-gcm@openssh.com,chacha20-poly1305@openssh.com,aes256-ctr,aes128-gcm@openssh.com,aes128-ctr"
       state: present
-    check_mode: yes
+#    check_mode: yes
     register: cipher_line
   - debug:
       var: cipher_line
@@ -58,15 +58,14 @@
 #    when: "{{ cipher_line }}"
 
 # SECOND APPROACH
-  - name: Adding Ciphers to config file v2
-    become: yes
-    lineinfile:
-      path: /etc/ssh/sshd_config
-      line: "Ciphers aes256-gcm@openssh.com,chacha20-poly1305@openssh.com,aes256-ctr,aes128-gcm@openssh.com,aes128-ctr"
-      state: present
-      insertafter: "# Ciphers and keying"
-      backup: yes
-    when: cipher_line2.rc == 1
+#  - name: Adding Ciphers to config file v2
+#    lineinfile:
+#      path: /etc/ssh/sshd_config
+#      line: "Ciphers aes256-gcm@openssh.com,chacha20-poly1305@openssh.com,aes256-ctr,aes128-gcm@openssh.com,aes128-ctr"
+#      state: present
+#      insertafter: "# Ciphers and keying"
+#      backup: yes
+#    when: cipher_line2.rc == 1
 
 #  - name: Configure ssh to use safe algorythms
 #    when: ansible_facts['os_family'] == "RedHat" and ansible_facts['lsb']['major_release'] | int >= 6 <= 9
