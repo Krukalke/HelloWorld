@@ -19,26 +19,31 @@
       path: /etc/ssh/sshd_config
       line: "Ciphers aes256-gcm@openssh.com,chacha20-poly1305@openssh.com,aes256-ctr,aes128-gcm@openssh.com,aes128-ctr"
       state: present
+      insertafter: "# Ciphers and keying"
 #    check_mode: yes
     register: cipher_line
-  - debug:
-      var: cipher_line
+#  - debug:
+#      var: cipher_line
 
 # SECOND APPROACH
-  - name: Check if Cipher line is present v2
-    become: yes
-    command: cat /etc/ssh/sshd_config | grep "Ciphers aes256-gcm@openssh.com,chacha20-poly1305@openssh.com,aes256-ctr,aes128-gcm@openssh.com,aes128-ctr"
-    register: cipher_line2
-    check_mode: no
-    ignore_errors: yes
-    changed_when: no
-  - debug:
-      var: cipher_line2
+#  - name: Check if Cipher line is present v2
+#    become: yes
+#    command: cat /etc/ssh/sshd_config | grep "Ciphers aes256-gcm@openssh.com,chacha20-poly1305@openssh.com,aes256-ctr,aes128-gcm@openssh.com,aes128-ctr"
+#    register: cipher_line2
+#    check_mode: no
+#    ignore_errors: yes
+#    changed_when: no
+#  - debug:
+#      var: cipher_line2
 
 
   - name: Greet the world if /etc/ssh/sshd_config contains proper Ciphers"
     debug: msg="All ok World!"
-    when: cipher_line2.rc == 0
+    when: cipher_line.changed != true
+
+  - name: Changes made in /etc/ssh/sshd_config, keys added"
+    debug: msg="Ciphers keys added to sshd_config!"
+    when: cipher_line.changed == true
 
 ### REPlACE PHASE
 #TO DO
