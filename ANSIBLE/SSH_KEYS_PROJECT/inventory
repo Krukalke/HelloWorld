@@ -1,0 +1,12 @@
+[rh7]
+ansible-hub-rh79
+
+[rh8]
+tower
+
+[ubuntu]
+ubuntu-22
+
+[rh9]
+ansible-rh9
+ansible2-rh9
