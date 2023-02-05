@@ -1,6 +1,6 @@
 ---
 - name: Set SSH algorythms (Ciphers,MACs,Kex) using ansible
-  hosts: rh8
+  hosts: rh9
   gather_facts: yes
   tasks:
 #  - name: Distribution
