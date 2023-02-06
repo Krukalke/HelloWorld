@@ -1,6 +1,6 @@
 ---
 - name: Set SSH algorythms (Ciphers,MACs,Kex) using ansible
-  hosts: rh9
+  hosts: all
   gather_facts: yes
   tasks:
 #  - name: Distribution
@@ -13,7 +13,7 @@
 #    debug: msg="{{ ansible_os_family }}"
 
 ### FIRST APPROACH - ISSUE RELATED TO VARIBLE FROM TEXT - IDN HOW TO CHECK
-  - name: Check if Cipher line is present v1
+  - name: Check if Cipher line is present
     become: yes
     lineinfile:
       path: /etc/ssh/sshd_config
@@ -22,8 +22,38 @@
       insertafter: "# Ciphers and keying"
 #    check_mode: yes
     register: cipher_line
+    when: (ansible_os_family == "RedHat" and ansible_distribution_major_version == "9")
+
 #  - debug:
 #      var: cipher_line
+
+  - name: Greet the world if /etc/ssh/sshd_config contains proper Ciphers"
+    debug: msg="All ok World!"
+    when: cipher_line.changed != true
+
+  - name: Changes made in /etc/ssh/sshd_config, keys added"
+    debug: msg="Ciphers keys added to sshd_config!"
+    when: cipher_line.changed == true
+
+  - name: Check if Cipher line is present RH8
+    become: yes
+    lineinfile:
+      path: /etc/ssh/sshd_config
+      line: "Ciphers aes256-gcm@openssh.com,chacha20-poly1305@openssh.com,aes256-ctr,aes128-gcm@openssh.com"
+      state: present
+      insertafter: "# Ciphers and keying"
+    register: cipher_line_rh8
+    when: (ansible_os_family == "RedHat" and ansible_distribution_major_version == "8")
+ 
+  - name: Greet the world if /etc/ssh/sshd_config contains proper Ciphers"
+    debug: msg="All ok World!"
+    when: cipher_line_rh8.changed != true
+
+  - name: Changes made in /etc/ssh/sshd_config, keys added"
+    debug: msg="Ciphers keys added to sshd_config!"
+    when: cipher_line_rh8.changed == true
+
+
 
 # SECOND APPROACH
 #  - name: Check if Cipher line is present v2
@@ -36,19 +66,8 @@
 #  - debug:
 #      var: cipher_line2
 
-
-  - name: Greet the world if /etc/ssh/sshd_config contains proper Ciphers"
-    debug: msg="All ok World!"
-    when: cipher_line.changed != true
-
-  - name: Changes made in /etc/ssh/sshd_config, keys added"
-    debug: msg="Ciphers keys added to sshd_config!"
-    when: cipher_line.changed == true
-
 ### REPlACE PHASE
 #TO DO
-
-
 
 ### ADDING PHASE
 # FIRST APPROACH
