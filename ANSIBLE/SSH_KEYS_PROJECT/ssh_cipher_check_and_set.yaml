@@ -45,7 +45,7 @@
     debug: msg="Ciphers keys added to sshd_config!"
     when: cipher_line.changed == true
 
-### REPlACE PHASE
+### REPLACE PHASE
 #TO DO
 
 
