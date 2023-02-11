@@ -44,11 +44,7 @@
       insertafter: "# Ciphers and keying"
     register: cipher_line_rh8
     when: (ansible_os_family == "RedHat" and ansible_distribution_major_version == "8")
-<<<<<< master
- 
-======
 
->>>>>> main
   - name: Greet the world if /etc/ssh/sshd_config contains proper Ciphers"
     debug: msg="All ok World!"
     when: cipher_line_rh8.changed != true
@@ -58,10 +54,6 @@
     when: cipher_line_rh8.changed == true
 
 
-<<<<<< master
-
-======
->>>>>> main
 # SECOND APPROACH
 #  - name: Check if Cipher line is present v2
 #    become: yes
