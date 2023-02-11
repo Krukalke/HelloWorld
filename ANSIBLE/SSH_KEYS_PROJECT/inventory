@@ -1,6 +1,3 @@
-[rh7]
-ansible-hub-rh79
-
 [rh8]
 tower
 
