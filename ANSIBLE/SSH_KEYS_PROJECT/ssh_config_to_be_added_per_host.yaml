@@ -1,0 +1,29 @@
+---
+- name: setting SSH config on each host
+  hosts: ansible-rh9
+  gather_facts: yes
+  become: yes
+  tasks:
+
+  - name: Remove text "ANSIBLE MANAGED BLOCK for sshd_config"
+    shell: |
+      sed '/^# BEGIN ANSIBLE MANAGED BLOCK/d' -i /etc/ssh/sshd_config
+      sed '/^# END ANSIBLE MANAGED BLOCK/d' -i /etc/ssh/sshd_config
+
+  - name: Remove all old configuration
+    shell: |
+      sed '/^Ciphers/d' -i /etc/ssh/sshd_config
+      sed '/^MACs/d' -i /etc/ssh/sshd_config
+      sed '/^KexAlgorithms/d' -i /etc/ssh/sshd_config
+
+  - name: Set proper configuration on RH9
+    ansible.builtin.blockinfile:
+      path: /etc/ssh/sshd_config
+      backup: yes
+      insertafter: "# Ciphers and keying"
+      block: |
+        Ciphers aes256-gcm@openssh.com,chacha20-poly1305@openssh.com,aes256-ctr,aes128-gcm@openssh.com,aes128-ctr
+        MACs hmac-sha2-256-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-512-etm@openssh.com,hmac-sha2-256,umac-128@openssh.com,hmac-sha2-512
+        KexAlgorithms curve25519-sha256,curve25519-sha256@libssh.org,ecdh-sha2-nistp256,ecdh-sha2-nistp384,ecdh-sha2-nistp521,diffie-hellman-group-exchange-sha256,diffie-hellman-group14-sha256,diffie-hellman-group16-sha512,diffie-hellman-group18-sha512
+    when: (ansible_os_family == "RedHat" and ansible_distribution_major_version == "9")
+
