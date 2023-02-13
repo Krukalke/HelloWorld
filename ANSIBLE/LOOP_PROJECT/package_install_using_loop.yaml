@@ -1,0 +1,58 @@
+---
+- name: Package instlation using loop
+  hosts: ansible-rh9
+  become: yes
+  vars:
+    packages:
+      - httpd
+      - firewalld
+  tasks:
+
+# Just instllation of specific packages:
+#  - name: Instlation of packages
+#    yum:
+#      name:
+#        - httpd
+#        - firewalld
+#      state: present
+
+# Using loop for installation of packages
+  - name: Instlation of packages using loop
+    yum:
+      name: "{{ item }}"
+      state: present
+    loop:
+      - httpd
+      - firewalld
+
+# Using vars loop for enabling applications:
+  - name: Enabling vars applications
+    ansible.builtin.yum:
+      name: "{{ packages }}"
+      state: present
+
+# Another way to provide vars:
+  - name: Install a list of packages with a list variable
+    ansible.builtin.yum:
+      name: "{{ packages }}"
+    vars:
+      packages:
+      - httpd
+      - httpd-tools
+
+# Unfortunetly ansible service has a problem with using var as a list so we have to enabled services using loop:
+  - name: Enabling services
+    ansible.builtin.service:
+      name: "{{ item }}"
+      state: started
+      enabled: yes
+    loop:
+      - httpd
+      - firewalld
+
+# Using ansible service module with var varible ended with such issue:
+#TASK [Enabling vars applications] *********************************************************************************************************
+#[WARNING]: The value ['httpd', 'firewalld'] (type list) in a string field was converted to "['httpd', 'firewalld']" (type string). If this
+#does not look like what you expect, quote the entire value to ensure it does not change.
+#fatal: [ansible-rh9]: FAILED! => {"changed": false, "msg": "This module does not currently support using glob patterns, found '[' in service name: ['httpd', 'firewalld']"}
+

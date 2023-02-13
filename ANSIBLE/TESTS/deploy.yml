@@ -1,0 +1,9 @@
+---
+- name: nested variables
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  tasks:
+    - name: include roles
+      include_role:
+        name: nested_vars

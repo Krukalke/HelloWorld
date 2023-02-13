@@ -1,0 +1,9 @@
+---
+location: bristol
+offices:
+  london:
+    users:
+      name: Dave
+  bristol:
+    users:
+      name: Jill
