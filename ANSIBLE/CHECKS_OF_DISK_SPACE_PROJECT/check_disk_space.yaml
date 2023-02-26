@@ -16,12 +16,35 @@
       var: disk_space.stdout_lines
 #      msg: "{{ disk_space }}"
 
-  - name: check of specific FS boot and main /
+  - name: check of specific FS boot and main
     debug:
-      msg: "Current usage of boot is: {{ item.split().4 }}"
+      msg: "Current usage of filesystem  mounted under {{ item.split().5 }} is: {{ item.split().4 }}"
     loop: "{{ disk_space.stdout_lines }}"
 #    when: item is match('^Filesystem(.*)$')
-    when: disk_space.stdout is regex("/boot")
+    when: item is match('.*boot(.*)$') or item is match('/(.*)$')
+#    when: item.split().4  > 0.1
 
+
+#  - name: second check of specific FS boot
+#    set_fact:
+#      usage:  "{{ usage + [item | split('%') | first }}"
+#    loop: "{{ disk_space.stdout_lines }}"
+
+# - debug: var=usage
+
+###
+  - name: third attempt
+    command : df
+    register: disk_space2
+  
+  - debug:
+      msg: "{{ disk_space2 }}"
+
+    
+  - debug:
+      msg: " {{ item.split().3 | int / item.split().2 | int }}"
+    with_items: "{{ disk_space.stdout_lines }}"
+    when: (item.split().2 > 0)
+    
 
 ### TO BE DONE
