@@ -21,7 +21,7 @@
       msg: "Current usage of boot is: {{ item.split().4 }}"
     loop: "{{ disk_space.stdout_lines }}"
 #    when: item is match('^Filesystem(.*)$')
-    when: disk_space.stdout is regex("/boot")
+    when: disk_space.stdout search ("/boot")
 
 
 ### TO BE DONE
