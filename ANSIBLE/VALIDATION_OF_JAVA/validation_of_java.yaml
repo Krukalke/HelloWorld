@@ -1,0 +1,74 @@
+---
+- name: validate Java
+  become: yes
+  hosts: ansible-rh9
+  tags: app
+#  ignore_errors: yes
+  tasks:
+  
+  - name: Install java
+    ansible.builtin.dnf:
+      name: java
+      state: present
+ 
+  - name: Check java version
+    ansible.builtin.command: "java -version"
+    register: javaver
+
+  - ansible.builtin.debug:
+      msg: " Java version Found {{ javaver.stderr }}"
+ 
+#########################################################
+### Another way
+  
+  - name: Validate java
+    ansible.builtin.shell: "{{ item }}"
+    register: javaout
+    with_items:
+      - "java -version"
+      - "javac -version"
+
+#  - debug:
+#      msg: "{{javaout.stderr}}"
+
+### ENDING WITH:
+#fatal: [ansible-rh9]: FAILED! => {"msg": "The task includes an option with an undefined variable. The error was: 'dict object' has no attribute 'stderr'\n\nThe error appears to be in '/home/ansible/GIT/ANSIBLE/VALIDATION_OF_JAVA/validation_of_java.yaml': line 30, column 5, but may\nbe elsewhere in the file depending on the exact syntax problem.\n\nThe offending line appears to be:\n\n\n  - debug:\n    ^ here\n"}
+
+##To understand why this error is occurring and how Ansible is saying that we are trying to print the dictionary object.
+#Let us make little modification in our task to print the complete register variable instead of a property (stderr (or) stdout)i
+
+# Instead try this:
+
+  - name: validate Java and Javac version
+    ansible.builtin.shell: "{{ item }}"
+    register: javaout
+    with_items:
+      - "java -version"
+      - "javac -version"
+    failed_when: "'error' in javaout.stderr"
+  
+  - debug:
+      msg: "{{javaout}}"  
+
+
+# HOW to resolve this issue.
+# Proper way to process dict objects...
+  
+  - name: validate Java and Javac
+    ansible.builtin.shell: "{{ item }}"
+    register: javaout2
+    with_items:
+      - "java -version"
+      - "javac -version"
+      - "java -d32 -version"
+    failed_when: "'error' in javaout2.stderr"
+
+  - ansible.builtin.debug:
+      msg: "{{ item.stderr }}"
+    loop: "{{ javaout2.results }}"
+
+  - name: fail if error in javaout2 output
+    fail:
+      msg: "Error in validation of java or javac"
+    when: "'Error' in item.stderr "
+    loop: "{{ javaout2.results }}"

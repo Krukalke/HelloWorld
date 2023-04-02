@@ -1,0 +1,27 @@
+---
+- name: Check of disk space
+  hosts: ansible-rh9
+  become: yes
+  gather_facts: yes
+  tasks:
+  
+  - name: Disk usage from command module
+    command: df -h
+    register: disk_space
+
+#  - debug:
+#      var: disk_space
+   
+  - debug:
+      var: disk_space.stdout_lines
+#      msg: "{{ disk_space }}"
+
+  - name: check of specific FS boot and main /
+    debug:
+      msg: "Current usage of boot is: {{ item.split().4 }}"
+    loop: "{{ disk_space.stdout_lines }}"
+#    when: item is match('^Filesystem(.*)$')
+    when: disk_space.stdout search ("/boot")
+
+
+### TO BE DONE

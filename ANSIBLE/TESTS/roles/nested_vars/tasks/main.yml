@@ -1,0 +1,12 @@
+---
+- name: London workers
+  debug:
+    msg: "{{ offices.london.users.name }}"
+
+- name: Bristol workers
+  debug:
+    msg: "{{ offices.bristol.users.name }}"
+
+- name: dynamic {{ location }} workers
+  debug:
+    msg: "{{ offices[location].users.name }}"

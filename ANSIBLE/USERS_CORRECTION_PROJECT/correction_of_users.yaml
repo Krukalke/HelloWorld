@@ -1,0 +1,26 @@
+---
+- name: Correction of users (removing unnecessary accounts)
+  hosts: ansible-rh9
+  become: yes
+  gather_facts: no
+  tasks:
+
+  - name: Get a list of users
+    getent:
+      database: passwd
+      split: ':'
+
+  - debug:
+      var: getent_passwd
+
+#  - name: List a users with uid bigger then 1000
+#    debug:
+#      msg: List of users with uid greater then 1000:= " {{ getent_passwd[0] }}"
+
+  - name: Get a list of users (second idea)
+      #command: getent passwd | awk -F: '{ print $1 " " $3}' | sort -gk 2
+    command: getent passwd
+    register: list_of_username_and_uid
+    debug:
+        var: list_of_username_and_uid.stdout_lines
+    #debug: msg="List of users with uids: {{ list_of_username_and_uid.stdout_lines }}" 
