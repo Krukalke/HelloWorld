@@ -9,19 +9,61 @@
     command: df -h
     register: disk_space
 
-#  - debug:
-#      var: disk_space
+  - debug:
+      var: disk_space
    
   - debug:
       var: disk_space.stdout_lines
 #      msg: "{{ disk_space }}"
 
-  - name: check of specific FS boot and main /
+  - name: check of specific FS - boot
     debug:
-      msg: "Current usage of boot is: {{ item.split().4 }}"
+      msg: "Current usage of {{ item.split().0 }} is: {{ item.split().4 }}"
     loop: "{{ disk_space.stdout_lines }}"
-#    when: item is match('^Filesystem(.*)$')
-    when: disk_space.stdout search ("/boot")
+    when: item is match ('(.*)boot(.*)$')
+#    when: disk_space.stdout_lines regex match "/boot"
 
+  - name: check of specific FS (boot and all statring with dev)
+    debug:
+      msg: "Current usage of {{ item.split().0 }} is: {{ item.split().4 }}"
+    loop: "{{ disk_space.stdout_lines }}"
+    when: item is match ('(.*)boot(.*)$') or item.split().5 is match ('(.*)dev(.*)$')              
+
+
+  - name: check of specific FS (boot and run)
+    debug:
+      msg: "Current usage of {{ item.split().0 }} is: {{ item.split().4 }}"
+    loop: "{{ disk_space.stdout_lines }}"
+    when: item is match ('(.*)boot(.*)$') or item.split().5 is match ('(.*)run$')
+
+
+  - name: check of specific FS (boot and main "/")
+    debug:
+      msg: "Current usage of {{ item.split().0 }} is: {{ item.split().4 }}"
+    loop: "{{ disk_space.stdout_lines }}"
+    when: item is match ('(.*)boot(.*)$') or item.split().5 is match ('(.*)/$')
+
+### Next task is to find a way to calculate if current disuk usage exceed 80%
+  - name: Current usage of /boot is too high
+    shell: df -BK
+    register: perfect_data_from_df_command
+
+### Debug to see varible
+  - debug:
+      msg: "{{ perfect_data_from_df_command }}"
+    
+  - name: Check the type of varible (dictonary or list) 
+    debug:
+      msg: "{{ perfect_data_from_df_command.stdout_lines | type_debug }}"
+
+  - name: Check the type of varible (dictonary or list)
+    debug:
+      msg: "{{ perfect_data_from_df_command | type_debug }}"
+
+
+
+#  - setfact: 
+    
+    
 
 ### TO BE DONE
