@@ -1,22 +1,24 @@
 ---
 - name: validate Java
   become: yes
-  hosts: ansible-rh9
-  tags: app
-#  ignore_errors: yes
+  # hosts: ansible-rh9
+  # tags: app
+  # ignore_errors: yes
   tasks:
   
-  - name: Install java
+  - name: Install java on RedHat 8
+    when: (ansible_facts['distribution'] == "RedHat" and ansible_facts['distribution_major_version'] == "8")
     ansible.builtin.dnf:
       name: java
       state: present
- 
-  - name: Check java version
-    ansible.builtin.command: "java -version"
-    register: javaver
 
-  - ansible.builtin.debug:
-      msg: " Java version Found {{ javaver.stderr }}"
+  - name: Install java on Redhat 7
+    when: (ansible_facts['distribution'] == "RedHat" and ansible_facts['distribution_major_version'] == "7")
+    ansible.builtin.yum:
+      name: java
+      state: present
+ 
+
  
 #########################################################
 ### Another way
@@ -39,16 +41,16 @@
 
 # Instead try this:
 
-  - name: validate Java and Javac version
-    ansible.builtin.shell: "{{ item }}"
-    register: javaout
-    with_items:
-      - "java -version"
-      - "javac -version"
-    failed_when: "'error' in javaout.stderr"
+  # - name: validate Java and Javac version
+  #   ansible.builtin.shell: "{{ item }}"
+  #   register: javaout
+  #   with_items:
+  #     - "java -version"
+  #     - "javac -version"
+  #   failed_when: "'error' in javaout.stderr"
   
-  - debug:
-      msg: "{{javaout}}"  
+  # - debug:
+  #     msg: "{{javaout}}"  
 
 
 # HOW to resolve this issue.
@@ -63,9 +65,9 @@
       - "java -d32 -version"
     failed_when: "'error' in javaout2.stderr"
 
-  - ansible.builtin.debug:
-      msg: "{{ item.stderr }}"
-    loop: "{{ javaout2.results }}"
+#  - ansible.builtin.debug:
+#      msg: "{{ item.stderr }}"
+#    loop: "{{ javaout2.results }}"
 
   - name: fail if error in javaout2 output
     fail:
