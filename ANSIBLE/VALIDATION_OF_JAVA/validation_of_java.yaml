@@ -1,7 +1,7 @@
 ---
 - name: validate Java
   become: yes
-  # hosts: ansible-rh9
+  hosts: all
   # tags: app
   # ignore_errors: yes
   tasks:
